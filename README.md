@@ -1,9 +1,5 @@
 # Fluent::Validation
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/fluent/validation`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -22,7 +18,48 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Include `Fluent::Validation` to your models:
+
+```ruby
+class User
+  include ActiveModel::Model
+  include Fluent::Validation
+end
+```
+
+And add validations in groups for mandatory properties and optional properties:
+
+```ruby
+class User
+  include ActiveModel::Model
+  include Fluent::Validation
+
+  mandatories :first_name, 
+              :last_name, 
+              :username,
+              { email:      { format: { with: URI::MailTo::EMAIL_REGEXP }}},
+              { contact_no: { numericality: true, format: { with: /\d+/ }}}
+
+  optionals gender: { inclusion: { in: ['M', 'F'] }}
+end
+```
+
+The above would be the equivalent of:
+
+```ruby
+class User
+  include ActiveModel::Model
+  include Fluent::Validation
+
+  validates :first_name, presence: true
+  validates :last_name,  presence: true
+  validates :username,   presence: true
+  validates :email,      presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
+  validates :contact_no, presence: true, numericality: true, format: { with: /\d+/ }
+
+  validates :gender, inclusion: { in: ['M', 'F'] }
+end
+```
 
 ## Development
 
